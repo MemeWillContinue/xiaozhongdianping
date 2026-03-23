@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "discover-kols": "node scripts/discover-kols-from-following.js",
+    "build": "node scripts/build-dist.js"
   },
   "repository": {
     "type": "git",
@@ -26,7 +28,11 @@
     "dotenv": "^17.3.1",
     "ethers": "^6.16.0",
     "express": "^5.2.1",
+    "express-session": "^1.19.0",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.1.1"
+  },
+  "devDependencies": {
+    "javascript-obfuscator": "^5.4.1"
   }
 }

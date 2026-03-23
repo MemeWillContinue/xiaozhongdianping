@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>小众点评 - 链上真实投票的KOL照妖镜</title>
+  <link rel="icon" type="image/webp" href="https://picui.ogmua.cn/s1/2026/03/17/69b9148e41419.webp" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="top-header">
+    <div class="header-row">
+      <div class="brand-wrap">
+        <div class="header-left">
+          <img class="brand-logo" src="https://picui.ogmua.cn/s1/2026/03/17/69b9148e41419.webp" alt="小众点评logo" />
+          <strong class="brand-title" data-i18n="brandName">小众点评</strong>
+        </div>
+      </div>
+      <div class="header-right">
+        <a id="xLoginBtn" href="#" class="x-login-btn" data-i18n="xLogin">X 登录</a>
+        <span id="xUserInfo" class="x-user-info" style="display:none;"></span>
+        <a id="adminPanelLink" href="./admin.html" class="admin-panel-link" style="display:none;" data-i18n="adminPanel">管理</a>
+        <button id="themeToggle" class="theme-toggle day" data-i18n-aria-label="themeToggleAria">DAY</button>
+        <button id="langToggle" class="lang-toggle" type="button">中文/EN</button>
+      </div>
+    </div>
+    <div class="center-tools">
+      <button id="openExposeModalBtn" class="yellow-btn expose-open-btn" type="button" data-i18n="collectKolsTitle">
+        收录博主
+      </button>
+      <div class="search-wrap">
+        <input id="searchInput" type="text" placeholder="搜索KOL名称或推特ID" data-i18n-placeholder="searchPlaceholder" />
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <section id="kol" class="card module-card active">
+      <div class="section-head">
+        <div class="tab-wrap">
+          <button class="tab tab-top active" data-rank="top" data-i18n="tabTop">Top榜</button>
+          <button class="tab tab-black" data-rank="black" data-i18n="tabBlack">黑榜</button>
+          <button class="tab tab-top" data-rank="new" data-i18n="tabNew">高分榜</button>
+        </div>
+      </div>
+      <div id="kolList" class="kol-grid"></div>
+    </section>
+
+    <section id="vote" class="card module-card">
+      <h2 data-i18n="voteSystemTitle">投票系统</h2>
+      <p class="muted" data-i18n="voteSystemDesc">需登录 X（推特）方可投票，粉丝数≥10 方可参与。投票属于用户观点，平台不做官方定性。</p>
+      <form id="voteForm" class="vote-form">
+        <label>
+          <span data-i18n="targetKOL">目标KOL</span>
+          <select id="kolSelect"></select>
+        </label>
+        <div class="score-grid">
+          <label><span data-i18n="dimTrust">可信度</span> <input type="number" min="1" max="5" name="trust" value="3" required /></label>
+          <label><span data-i18n="dimInfoValue">信息价值</span> <input type="number" min="1" max="5" name="alpha" value="3" required /></label>
+          <label><span data-i18n="dimWinRate">胜率</span> <input type="number" min="1" max="5" name="winRate" value="3" required /></label>
+          <label><span data-i18n="dimSafety">安全可靠</span> <input type="number" min="1" max="5" name="risk" value="3" required /></label>
+        </div>
+        <button class="yellow-btn" type="submit" data-i18n="submitScore">提交评分（Hash存证示意）</button>
+      </form>
+      <div id="voteTips" class="tips"></div>
+    </section>
+
+    <section id="comment" class="card module-card">
+      <h2 data-i18n="latestExpose">最新爆料</h2>
+      <p id="reportMsg" class="tips"></p>
+
+      <article class="report-list-wrap">
+        <ul id="reportList" class="report-list"></ul>
+      </article>
+    </section>
+
+    <section id="donate" class="card module-card">
+      <h2 data-i18n="donateTitle">捐赠与权益</h2>
+      <p class="muted">EVM 网络捐赠地址：</p>
+      <div class="donate-address-wrap">
+        <input id="donateAddressInput" type="text" readonly value="0x5350312D594E8724481ab92924522C220E298039" />
+        <button id="copyDonateAddressBtn" class="yellow-btn" type="button">复制地址</button>
+      </div>
+      <p class="muted">地址：0x5350312D594E8724481ab92924522C220E298039</p>
+    </section>
+
+  </main>
+
+  <div id="reviewsModal" class="reviews-modal vote-modal" aria-hidden="true">
+    <div class="reviews-modal-panel vote-modal-panel">
+      <button id="reviewsModalClose" class="vote-modal-close" aria-label="关闭">×</button>
+      <h3 id="reviewsModalTitle">评价</h3>
+      <p id="reviewsCountLine" class="reviews-count-line">0 条评价</p>
+      <div id="reviewsList" class="reviews-list"></div>
+    </div>
+  </div>
+
+  <div id="voteModal" class="vote-modal" aria-hidden="true">
+    <div class="vote-modal-panel">
+      <button id="voteModalClose" class="vote-modal-close" data-i18n-aria-label="modalClose">×</button>
+      <h3 data-i18n="modalVoteTitle">KOL投票</h3>
+      <p id="modalKolName" class="muted"></p>
+      <form id="voteModalForm" class="vote-form">
+        <input id="modalKolInput" type="hidden" />
+        <textarea id="modalCommentInput" placeholder="请输入你的评价观点" data-i18n-placeholder="modalCommentPlaceholder" required></textarea>
+        <div class="star-score-grid">
+          <div class="star-item">
+            <span data-i18n="starBiz">业务能力</span>
+            <input type="hidden" name="biz" value="3" />
+            <div class="star-row" data-star-group="biz"></div>
+          </div>
+          <div class="star-item">
+            <span data-i18n="starResearch">投研水平</span>
+            <input type="hidden" name="research" value="3" />
+            <div class="star-row" data-star-group="research"></div>
+          </div>
+          <div class="star-item">
+            <span data-i18n="starEthics">道德操守</span>
+            <input type="hidden" name="ethics" value="3" />
+            <div class="star-row" data-star-group="ethics"></div>
+          </div>
+          <div class="star-item">
+            <span data-i18n="starReputation">圈内风评</span>
+            <input type="hidden" name="reputation" value="3" />
+            <div class="star-row" data-star-group="reputation"></div>
+          </div>
+          <div class="star-item">
+            <span data-i18n="starSafety">安全可靠</span>
+            <input type="hidden" name="risk" value="3" />
+            <div class="star-row" data-star-group="risk"></div>
+          </div>
+        </div>
+        <p id="modalTotalScore" class="modal-total-score">总分：3.0 / 5.0</p>
+        <button class="yellow-btn" type="submit" data-i18n="submitScoreSimple">提交评分</button>
+      </form>
+      <p id="modalVoteTips" class="tips"></p>
+      <p class="modal-note" data-i18n-html="modalNote">安全可靠指存在诈骗、割韭菜等过往史，一星为最高风险。<br />请理性投票，恶意评价将会导致封号。</p>
+    </div>
+  </div>
+
+  <div id="exposeModal" class="vote-modal" aria-hidden="true">
+    <div class="vote-modal-panel">
+      <button id="exposeModalClose" class="vote-modal-close" aria-label="关闭">×</button>
+      <h3 data-i18n="submitTitle">KOL提交系统（UGC）</h3>
+      <form id="submitForm" class="submit-form">
+        <label><span data-i18n="submitTwitter">推特链接</span> <input type="url" id="twitterLink" placeholder="https://x.com/..." required /></label>
+        <label><span data-i18n="submitIntro">简介</span> <input type="text" id="kolDesc" data-i18n-placeholder="submitIntroPlaceholder" placeholder="写一下该KOL风格" required /></label>
+        <label><span data-i18n="submitTag">标签</span>
+          <select id="kolTag">
+            <option>meme</option>
+            <option>alpha</option>
+            <option value="合约" data-i18n="tagContract">合约</option>
+            <option value="带单" data-i18n="tagLead">带单</option>
+            <option value="项目方" data-i18n="tagProject">项目方</option>
+          </select>
+        </label>
+        <label class="checkbox-line"><input type="checkbox" id="isLeadTrade" /> <span data-i18n="submitLeadTrade">是否带单</span></label>
+        <button class="yellow-btn" type="submit" data-i18n="submitQueue">提交到审核队列</button>
+      </form>
+      <p id="submitMsg" class="tips"></p>
+    </div>
+  </div>
+
+  <div id="discussModal" class="vote-modal" aria-hidden="true">
+    <div class="vote-modal-panel">
+      <button id="discussModalClose" class="vote-modal-close" aria-label="关闭">×</button>
+      <h3 id="discussModalTitle">讨论广场</h3>
+      <div id="discussList" class="reviews-list"></div>
+      <div class="review-reply-form" style="display:flex">
+        <input type="text" id="discussInput" class="review-reply-input" placeholder="说点什么…" />
+        <button type="button" id="discussSubmit" class="review-reply-submit yellow-btn">发送</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="bottom-modules">
+    <a class="module-link" href="#kol" data-target="kol" data-i18n="bottomRank">KOL榜单</a>
+    <a class="module-link" href="#comment" data-target="comment" data-i18n="bottomExpose">爆料</a>
+    <a class="module-link" href="#donate" data-target="donate" data-i18n="bottomDonate">捐赠</a>
+  </footer>
+
+  <div id="globalToast" class="global-toast" role="status" aria-live="polite"></div>
+
+  <script src="./frontend.obf.js"></script>
+</body>
+</html>

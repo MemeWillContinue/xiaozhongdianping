@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>管理后台 - 小众点评</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <style>
+    .admin-page { max-width: 720px; margin: 24px auto; padding: 0 16px 80px; }
+    .admin-page h1 { font-size: 1.25rem; margin-bottom: 8px; }
+    .admin-page .muted { color: var(--text-sub); margin-bottom: 20px; }
+    .sub-card { border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 16px; background: var(--card); }
+    .sub-card h2 { font-size: 1rem; margin: 0 0 10px; }
+    .sub-row { font-size: 14px; margin: 6px 0; word-break: break-all; }
+    .sub-actions { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .sub-actions button { padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    .btn-ok { background: var(--accent); border: 1px solid var(--accent); color: #141414; }
+    .btn-no { background: transparent; border: 1px solid var(--line); color: var(--text-main); }
+    .expose-li { margin: 8px 0; padding: 8px; background: var(--bg); border-radius: 8px; font-size: 13px; }
+    .admin-subject { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 6px; }
+    .admin-sub-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 1px solid var(--line); }
+    .admin-sub-avatar-letter { display: flex; align-items: center; justify-content: center; font-weight: 700; background: linear-gradient(135deg, rgba(234, 179, 8, 0.35), rgba(234, 179, 8, 0.08)); }
+    .admin-subject-text { min-width: 0; font-size: 14px; line-height: 1.35; }
+    .expose-admin-actions { margin-top: 8px; display:flex; gap:8px; flex-wrap:wrap; }
+    .btn-review-trust { background: #2e7d32; border: 1px solid #2e7d32; color: #fff; }
+    .btn-review-doubt { background: #f9a825; border: 1px solid #f9a825; color: #141414; }
+    .btn-review-false { background: transparent; border: 1px solid var(--line); color: var(--text-main); }
+    #adminMsg { color: #c62828; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+  <div class="admin-page">
+    <h1>管理后台</h1>
+    <p class="muted">需使用已在服务器配置的 <strong>管理员 X 账号</strong> 登录本站后访问本页。爆料列表与首页「爆料」区块相同，此处便于集中查看。</p>
+    <p id="adminMsg"></p>
+    <p><a href="./">← 返回首页</a></p>
+
+    <div class="sub-card">
+      <h2>待审核 KOL 提交</h2>
+      <div id="submissionsList">加载中…</div>
+    </div>
+
+    <div class="sub-card">
+      <h2>最新爆料（最近 100 条）</h2>
+      <ul id="exposeList" style="list-style:none;padding:0;margin:0;"></ul>
+    </div>
+  </div>
+
+  <script>
+    async function api(path, options = {}) {
+      const res = await fetch("/api" + path, {
+        ...options,
+        credentials: "include",
+        headers: {
+          ...(options.headers || {}),
+          ...(options.body instanceof FormData ? {} : { "Content-Type": "application/json" })
+        }
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || res.statusText);
+      return data;
+    }
+
+    const msg = document.getElementById("adminMsg");
+    const subEl = document.getElementById("submissionsList");
+    const expEl = document.getElementById("exposeList");
+
+    function esc(s) {
+      return String(s ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function adminSubjectBlock(r, rawFallback) {
+      const h = (r.subject_handle || "").trim();
+      const name = (r.subject_name || "").trim();
+      const profile = h ? `https://x.com/${encodeURIComponent(h)}` : "";
+      const av = h ? `/api/avatar/${encodeURIComponent(h)}` : "";
+      const dice = h ? `https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(h)}` : "";
+      const img = h
+        ? `<img class="admin-sub-avatar" src="${esc(av)}" alt="" width="40" height="40" data-fallback="${esc(dice)}" onerror="this.onerror=null;this.src=this.dataset.fallback" />`
+        : `<div class="admin-sub-avatar admin-sub-avatar-letter" aria-hidden="true">${esc((rawFallback || "?").trim().charAt(0).toUpperCase())}</div>`;
+      let line = "";
+      if (h) {
+        line = name
+          ? `<strong>${esc(name)}</strong> <a href="${profile}" target="_blank" rel="noopener">@${esc(h)}</a>`
+          : `<a href="${profile}" target="_blank" rel="noopener"><strong>@${esc(h)}</strong></a>`;
+      } else {
+        line = `<span class="muted">${esc(rawFallback || "")}</span>`;
+      }
+      return `<div class="admin-subject">${img}<div class="admin-subject-text">${line}</div></div>`;
+    }
+
+    async function boot() {
+      try {
+        const me = await api("/auth/me");
+        if (!me.loggedIn || !me.isAdmin) {
+          msg.textContent = "无权限：请先用管理员 X 账号在首页登录，再打开本页。";
+          subEl.innerHTML = "";
+          return;
+        }
+        msg.textContent = "";
+        const rows = await api("/admin/submissions");
+        const pending = (rows || []).filter((r) => r.status === "pending");
+        if (!pending.length) {
+          subEl.innerHTML = "<p class=\"muted\">暂无待审核提交。</p>";
+        } else {
+          subEl.innerHTML = pending
+            .map(
+              (r) => `
+            <div class="sub-row" data-id="${r.id}">
+              <p style="margin:0 0 6px;"><strong>#${r.id}</strong></p>
+              ${adminSubjectBlock(r, r.twitter_link)}
+              <p class="muted" style="margin:4px 0;font-size:12px;">链接：${esc(r.twitter_link)}</p>
+              <span class="muted">${esc((r.intro || "").slice(0, 200))}</span>
+              <div class="sub-actions">
+                <button type="button" class="btn-ok" data-act="approve" data-sid="${r.id}">通过</button>
+                <button type="button" class="btn-no" data-act="reject" data-sid="${r.id}">拒绝</button>
+              </div>
+            </div>`
+            )
+            .join("");
+          subEl.querySelectorAll("[data-act]").forEach((btn) => {
+            btn.addEventListener("click", async () => {
+              const id = btn.dataset.sid;
+              const action = btn.dataset.act;
+              try {
+                await api("/admin/submissions/" + id + "/review", {
+                  method: "POST",
+                  body: JSON.stringify({ action, note: "" })
+                });
+                boot();
+              } catch (e) {
+                msg.textContent = e.message;
+              }
+            });
+          });
+        }
+
+        const exposes = await api("/exposes");
+        expEl.innerHTML = (exposes || [])
+          .map(
+            (r) =>
+              `<li class="expose-li">
+                ${adminSubjectBlock(r, r.twitter_id)}
+                <p style="margin:6px 0 0 50px;">${esc(r.event_text)} <span class="muted">· ${esc(r.credibility)}</span></p>
+                <p class="muted" style="margin:4px 0 0 50px;font-size:12px;">${esc(r.created_at || "")}</p>
+                ${
+                  r.credibility === "待审核"
+                    ? `<div class="expose-admin-actions">
+                        <button type="button" class="btn-review-trust" data-eid="${r.id}" data-cred="完全可信">完全可信</button>
+                        <button type="button" class="btn-review-doubt" data-eid="${r.id}" data-cred="存疑">存疑</button>
+                        <button type="button" class="btn-review-false" data-eid="${r.id}" data-cred="不可信">不可信</button>
+                      </div>`
+                    : ""
+                }
+              </li>`
+          )
+          .join("") || "<li class=\"muted\">暂无</li>";
+
+        expEl.querySelectorAll("[data-eid][data-cred]").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            try {
+              const id = btn.dataset.eid;
+              const credibility = btn.dataset.cred;
+              await api(`/admin/exposes/${id}/review`, {
+                method: "POST",
+                body: JSON.stringify({ credibility })
+              });
+              boot();
+            } catch (e) {
+              msg.textContent = e.message;
+            }
+          });
+        });
+      } catch (e) {
+        msg.textContent = e.message || "加载失败";
+        subEl.innerHTML = "";
+      }
+    }
+
+    boot();
+  </script>
+</body>
+</html>

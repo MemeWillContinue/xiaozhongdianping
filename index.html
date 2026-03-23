@@ -2,29 +2,23 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>小众点评 - 链上真实投票的KOL照妖镜</title>
   <link rel="icon" type="image/webp" href="https://picui.ogmua.cn/s1/2026/03/17/69b9148e41419.webp" />
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <header class="top-header">
-    <div class="brand-wrap">
-      <div class="header-left">
-        <img class="brand-logo" src="https://picui.ogmua.cn/s1/2026/03/17/69b9148e41419.webp" alt="小众点评logo" />
-        <strong class="brand-title" data-i18n="brandName">小众点评</strong>
-        <nav class="left-nav">
-          <a class="module-link active" href="#kol" data-target="kol" data-i18n="topNavVote">投票</a>
-          <a class="module-link" href="#donate" data-target="donate" data-i18n="topNavDonate">捐赠</a>
-          <a class="module-link" href="#comment" data-target="comment" data-i18n="topNavExpose">爆料</a>
-        </nav>
+    <div class="header-row">
+      <div class="brand-wrap">
+        <div class="header-left">
+          <img class="brand-logo" src="https://picui.ogmua.cn/s1/2026/03/17/69b9148e41419.webp" alt="小众点评logo" />
+          <strong class="brand-title" data-i18n="brandName">小众点评</strong>
+        </div>
       </div>
-      <button id="themeToggle" class="theme-toggle day" aria-label="切换黑白主题">DAY</button>
-      <div class="header-right">
-        <button id="langToggle" class="lang-toggle" type="button">中文/EN</button>
-      </div>
+      <button id="themeToggle" class="theme-toggle day" data-i18n-aria-label="themeToggleAria">DAY</button>
+      <button id="langToggle" class="lang-toggle" type="button">中文/EN</button>
     </div>
-
     <div class="center-tools">
       <div class="search-wrap">
         <input id="searchInput" type="text" placeholder="搜索KOL名称或推特ID" data-i18n-placeholder="searchPlaceholder" />
@@ -70,17 +64,17 @@
     <section id="donate" class="card module-card">
       <h2 data-i18n="donateTitle">捐赠与权益</h2>
       <div class="rights-grid">
-        <article><h3>1U</h3><p>解锁基础投票权（永久）</p></article>
-        <article><h3>10U</h3><p>预留：高级评论权</p></article>
-        <article><h3>50U</h3><p>预留：举报权 / 仲裁权</p></article>
+        <article><h3>1U</h3><p data-i18n="donateRights1U">解锁基础投票权（永久）</p></article>
+        <article><h3>10U</h3><p data-i18n="donateRights10U">预留：高级评论权</p></article>
+        <article><h3>50U</h3><p data-i18n="donateRights50U">预留：举报权 / 仲裁权</p></article>
       </div>
       <form id="donationVerifyForm" class="submit-form">
         <label>
-          Wallet
-          <input id="donationWallet" type="text" placeholder="0x..." required />
+          <span data-i18n="donateWallet">Wallet</span>
+          <input id="donationWallet" type="text" placeholder="0x..." data-i18n-placeholder="walletPlaceholder" required />
         </label>
         <label>
-          Chain
+          <span data-i18n="donateChain">Chain</span>
           <select id="donationChain" required>
             <option value="ethereum">Ethereum</option>
             <option value="arbitrum">Arbitrum</option>
@@ -91,28 +85,28 @@
           USDT Tx Hash
           <input id="donationTxHash" type="text" placeholder="0x..." required />
         </label>
-        <button class="yellow-btn" type="submit">验证1U捐赠</button>
+        <button class="yellow-btn" type="submit" data-i18n="donateVerify">验证1U捐赠</button>
       </form>
       <p id="donationMsg" class="tips"></p>
-      <p class="muted">支持USDT链路：ERC20 / Arbitrum / BSC，验证成功后才能真实投票。</p>
+      <p class="muted" data-i18n="donateSupport">支持USDT链路：ERC20 / Arbitrum / BSC，验证成功后才能真实投票。</p>
     </section>
 
     <section id="submit" class="card module-card">
       <h2 data-i18n="submitTitle">KOL提交系统（UGC）</h2>
       <form id="submitForm" class="submit-form">
-        <label>推特链接 <input type="url" id="twitterLink" placeholder="https://x.com/..." required /></label>
-        <label>简介 <input type="text" id="kolDesc" placeholder="写一下该KOL风格" required /></label>
-        <label>标签
+        <label><span data-i18n="submitTwitter">推特链接</span> <input type="url" id="twitterLink" placeholder="https://x.com/..." required /></label>
+        <label><span data-i18n="submitIntro">简介</span> <input type="text" id="kolDesc" data-i18n-placeholder="submitIntroPlaceholder" placeholder="写一下该KOL风格" required /></label>
+        <label><span data-i18n="submitTag">标签</span>
           <select id="kolTag">
             <option>meme</option>
             <option>alpha</option>
-            <option>合约</option>
-            <option>带单</option>
-            <option>项目方</option>
+            <option value="合约" data-i18n="tagContract">合约</option>
+            <option value="带单" data-i18n="tagLead">带单</option>
+            <option value="项目方" data-i18n="tagProject">项目方</option>
           </select>
         </label>
-        <label class="checkbox-line"><input type="checkbox" id="isLeadTrade" /> 是否带单</label>
-        <button class="yellow-btn" type="submit">提交到审核队列</button>
+        <label class="checkbox-line"><input type="checkbox" id="isLeadTrade" /> <span data-i18n="submitLeadTrade">是否带单</span></label>
+        <button class="yellow-btn" type="submit" data-i18n="submitQueue">提交到审核队列</button>
       </form>
       <p id="submitMsg" class="tips"></p>
     </section>
@@ -120,20 +114,20 @@
     <section id="comment" class="card module-card">
       <h2 data-i18n="commentTitle">评论 & 爆料系统</h2>
       <form id="reportForm" class="report-form">
-        <label>人物（推特ID）
+        <label><span data-i18n="commentPerson">人物（推特ID）</span>
           <input id="reportTwitterId" type="text" placeholder="@twitter_id" required />
         </label>
-        <label>事件
-          <textarea id="reportEvent" placeholder="描述事件经过、时间线和争议点" required></textarea>
+        <label><span data-i18n="commentEvent">事件</span>
+          <textarea id="reportEvent" data-i18n-placeholder="commentEventPlaceholder" placeholder="描述事件经过、时间线和争议点" required></textarea>
         </label>
-        <label>证据（图片/视频/文件）
+        <label><span data-i18n="commentEvidence">证据（图片/视频/文件）</span>
           <input id="reportEvidence" type="file" multiple accept="image/*,video/*,.pdf,.doc,.docx,.txt,.zip" />
         </label>
-        <label>可信度
+        <label><span data-i18n="commentCredibility">可信度</span>
           <select id="reportCredibility" required>
-            <option value="完全可信">完全可信</option>
-            <option value="存疑">存疑</option>
-            <option value="不可信">不可信</option>
+            <option value="完全可信" data-i18n="credibilityTrust">完全可信</option>
+            <option value="存疑" data-i18n="credibilityDoubt">存疑</option>
+            <option value="不可信" data-i18n="credibilityFalse">不可信</option>
           </select>
         </label>
         <button class="yellow-btn" type="submit" data-i18n="submitExpose">提交爆料</button>
@@ -161,40 +155,40 @@
       <h2 data-i18n="noticeTitle">说明</h2>
       <h3 data-i18n="repTitle">信誉系统</h3>
       <div class="rep-items">
-        <span>新用户</span>
-        <span>已投票用户</span>
-        <span>高信誉用户</span>
+        <span data-i18n="repNew">新用户</span>
+        <span data-i18n="repVoted">已投票用户</span>
+        <span data-i18n="repHigh">高信誉用户</span>
       </div>
-      <p class="muted">评分权重随信誉等级提升，降低女巫攻击影响。</p>
+      <p class="muted" data-i18n="repWeight">评分权重随信誉等级提升，降低女巫攻击影响。</p>
 
       <h3 data-i18n="riskModelTitle">风险评分模型</h3>
-      <p class="formula">风险指数 = (低可信评分 × 权重) + (爆料数量 × 权重) + (Rug记录 × 权重) - (历史命中率 × 权重)</p>
+      <p class="formula" data-i18n="riskFormula">风险指数 = (低可信评分 × 权重) + (爆料数量 × 权重) + (Rug记录 × 权重) - (历史命中率 × 权重)</p>
       <div class="risk-levels">
-        <span class="green">安全</span>
-        <span class="yellow">中风险</span>
-        <span class="red">高风险</span>
+        <span class="green" data-i18n="riskSafe">安全</span>
+        <span class="yellow" data-i18n="riskMid">中风险</span>
+        <span class="red" data-i18n="riskHigh">高风险</span>
       </div>
 
       <h3 data-i18n="antiCheatTitle">反作弊系统</h3>
       <ul class="plain-list">
-        <li>地址唯一投票限制</li>
-        <li>短时间高频行为预警</li>
-        <li>黑名单地址拦截</li>
-        <li>多签地址识别（预留）</li>
+        <li data-i18n="antiCheat1">地址唯一投票限制</li>
+        <li data-i18n="antiCheat2">短时间高频行为预警</li>
+        <li data-i18n="antiCheat3">黑名单地址拦截</li>
+        <li data-i18n="antiCheat4">多签地址识别（预留）</li>
       </ul>
 
       <h3 data-i18n="riskTipTitle">风险提示</h3>
       <ul class="plain-list">
-        <li>所有评分、评论与爆料均为用户观点，不构成投资建议。</li>
-        <li>平台不对KOL进行官方定性，不鼓励网暴与诽谤。</li>
-        <li>恶意提交与伪造证据将被封禁并进入黑名单。</li>
+        <li data-i18n="riskTip1">所有评分、评论与爆料均为用户观点，不构成投资建议。</li>
+        <li data-i18n="riskTip2">平台不对KOL进行官方定性，不鼓励网暴与诽谤。</li>
+        <li data-i18n="riskTip3">恶意提交与伪造证据将被封禁并进入黑名单。</li>
       </ul>
     </section>
   </main>
 
   <div id="voteModal" class="vote-modal" aria-hidden="true">
     <div class="vote-modal-panel">
-      <button id="voteModalClose" class="vote-modal-close" aria-label="关闭">×</button>
+      <button id="voteModalClose" class="vote-modal-close" data-i18n-aria-label="modalClose">×</button>
       <h3 data-i18n="modalVoteTitle">KOL投票</h3>
       <p id="modalKolName" class="muted"></p>
       <form id="voteModalForm" class="vote-form">

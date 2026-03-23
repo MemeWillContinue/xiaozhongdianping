@@ -10,7 +10,85 @@ const state = {
 
 const i18n = {
   zh: {
+    brandName: "小众点评",
+    pageTitle: "小众点评 - 链上真实投票的KOL照妖镜",
     searchPlaceholder: "搜索KOL名称或推特ID",
+    tabTop: "Top榜",
+    tabBlack: "黑榜",
+    tabNew: "新晋榜",
+    voteSystemTitle: "投票系统（1U门槛）",
+    voteSystemDesc: "捐赠1 USDT后解锁1次投票权。投票属于用户观点，平台不做官方定性。",
+    walletAddress: "钱包地址",
+    walletPlaceholder: "0x...",
+    targetKOL: "目标KOL",
+    dimTrust: "可信度",
+    dimInfoValue: "信息价值",
+    dimWinRate: "胜率",
+    dimSafety: "安全可靠",
+    submitScore: "提交评分（Hash存证示意）",
+    donateTitle: "捐赠与权益",
+    donateRights1U: "解锁基础投票权（永久）",
+    donateRights10U: "预留：高级评论权",
+    donateRights50U: "预留：举报权 / 仲裁权",
+    donateWallet: "钱包",
+    donateChain: "链",
+    donateVerify: "验证1U捐赠",
+    donateSupport: "支持USDT链路：ERC20 / Arbitrum / BSC，验证成功后才能真实投票。",
+    submitTitle: "KOL提交系统（UGC）",
+    submitTwitter: "推特链接",
+    submitIntro: "简介",
+    submitIntroPlaceholder: "写一下该KOL风格",
+    submitTag: "标签",
+    tagContract: "合约",
+    tagLead: "带单",
+    tagProject: "项目方",
+    submitLeadTrade: "是否带单",
+    submitQueue: "提交到审核队列",
+    commentTitle: "评论 & 爆料系统",
+    commentPerson: "人物（推特ID）",
+    commentEvent: "事件",
+    commentEventPlaceholder: "描述事件经过、时间线和争议点",
+    commentEvidence: "证据（图片/视频/文件）",
+    commentCredibility: "可信度",
+    credibilityTrust: "完全可信",
+    credibilityDoubt: "存疑",
+    credibilityFalse: "不可信",
+    submitExpose: "提交爆料",
+    noticeTitle: "说明",
+    repTitle: "信誉系统",
+    repNew: "新用户",
+    repVoted: "已投票用户",
+    repHigh: "高信誉用户",
+    repWeight: "评分权重随信誉等级提升，降低女巫攻击影响。",
+    riskModelTitle: "风险评分模型",
+    riskFormula: "风险指数 = (低可信评分 × 权重) + (爆料数量 × 权重) + (Rug记录 × 权重) - (历史命中率 × 权重)",
+    riskSafe: "安全",
+    riskMid: "中风险",
+    riskHigh: "高风险",
+    antiCheatTitle: "反作弊系统",
+    antiCheat1: "地址唯一投票限制",
+    antiCheat2: "短时间高频行为预警",
+    antiCheat3: "黑名单地址拦截",
+    antiCheat4: "多签地址识别（预留）",
+    riskTipTitle: "风险提示",
+    riskTip1: "所有评分、评论与爆料均为用户观点，不构成投资建议。",
+    riskTip2: "平台不对KOL进行官方定性，不鼓励网暴与诽谤。",
+    riskTip3: "恶意提交与伪造证据将被封禁并进入黑名单。",
+    modalVoteTitle: "KOL投票",
+    modalClose: "关闭",
+    modalCommentPlaceholder: "请输入你的评价观点",
+    starBiz: "业务能力",
+    starResearch: "投研水平",
+    starEthics: "道德操守",
+    starReputation: "圈内风评",
+    starSafety: "安全可靠",
+    bottomRank: "KOL榜单",
+    pinnedBadge: "置顶",
+    bottomDonate: "捐赠",
+    bottomSubmit: "提交",
+    bottomExpose: "爆料",
+    bottomNotice: "说明",
+    themeToggleAria: "切换黑白主题",
     day: "DAY",
     night: "NIGHT",
     walletConnect: "连接钱包",
@@ -47,7 +125,85 @@ const i18n = {
     submitScoreSimple: "提交评分"
   },
   en: {
+    brandName: "Niche Review",
+    pageTitle: "Niche Review - On-chain KOL Voting",
     searchPlaceholder: "Search KOL name or Twitter ID",
+    tabTop: "Top",
+    tabBlack: "Blacklist",
+    tabNew: "Rising",
+    voteSystemTitle: "Vote System (1U gate)",
+    voteSystemDesc: "Donate 1 USDT to unlock 1 vote. Votes are user opinions, not official ratings.",
+    walletAddress: "Wallet",
+    walletPlaceholder: "0x...",
+    targetKOL: "Target KOL",
+    dimTrust: "Trust",
+    dimInfoValue: "Alpha",
+    dimWinRate: "Win Rate",
+    dimSafety: "Safety",
+    submitScore: "Submit Score (Hash proof)",
+    donateTitle: "Donation & Benefits",
+    donateRights1U: "Unlock voting (permanent)",
+    donateRights10U: "Reserved: Advanced comments",
+    donateRights50U: "Reserved: Report / Arbitration",
+    donateWallet: "Wallet",
+    donateChain: "Chain",
+    donateVerify: "Verify 1U Donation",
+    donateSupport: "USDT on ERC20 / Arbitrum / BSC. Vote after verification.",
+    submitTitle: "KOL Submission (UGC)",
+    submitTwitter: "Twitter Link",
+    submitIntro: "Intro",
+    submitIntroPlaceholder: "Describe this KOL style",
+    submitTag: "Tag",
+    tagContract: "Contract",
+    tagLead: "Lead",
+    tagProject: "Project",
+    submitLeadTrade: "Lead Trade?",
+    submitQueue: "Submit for Review",
+    commentTitle: "Comment & Expose",
+    commentPerson: "Person (Twitter ID)",
+    commentEvent: "Event",
+    commentEventPlaceholder: "Describe timeline and controversy",
+    commentEvidence: "Evidence (image/video/file)",
+    commentCredibility: "Credibility",
+    credibilityTrust: "Trustworthy",
+    credibilityDoubt: "Uncertain",
+    credibilityFalse: "Untrusted",
+    submitExpose: "Submit Expose",
+    noticeTitle: "Notice",
+    repTitle: "Reputation System",
+    repNew: "New User",
+    repVoted: "Voted User",
+    repHigh: "High Rep User",
+    repWeight: "Score weight increases with reputation to reduce sybil attacks.",
+    riskModelTitle: "Risk Model",
+    riskFormula: "Risk = (Low trust × w) + (Exposes × w) + (Rug × w) - (Win rate × w)",
+    riskSafe: "Safe",
+    riskMid: "Medium",
+    riskHigh: "High",
+    antiCheatTitle: "Anti-Cheat",
+    antiCheat1: "One vote per address",
+    antiCheat2: "High-frequency alerts",
+    antiCheat3: "Blacklist blocking",
+    antiCheat4: "Multisig detection (reserved)",
+    riskTipTitle: "Risk Notice",
+    riskTip1: "All ratings and exposes are user opinions, not investment advice.",
+    riskTip2: "No official KOL rating. No doxxing or libel.",
+    riskTip3: "Malicious submissions and fake evidence lead to bans.",
+    modalVoteTitle: "KOL Vote",
+    modalClose: "Close",
+    modalCommentPlaceholder: "Enter your review",
+    starBiz: "Business",
+    starResearch: "Research",
+    starEthics: "Ethics",
+    starReputation: "Reputation",
+    starSafety: "Safety",
+    bottomRank: "KOL List",
+    pinnedBadge: "Pinned",
+    bottomDonate: "Donate",
+    bottomSubmit: "Submit",
+    bottomExpose: "Expose",
+    bottomNotice: "Notice",
+    themeToggleAria: "Toggle day/night theme",
     day: "DAY",
     night: "NIGHT",
     walletConnect: "Connect Wallet",
@@ -87,7 +243,7 @@ const i18n = {
 
 function t(key, vars = {}) {
   const dict = i18n[state.lang] || i18n.zh;
-  let text = dict[key] || key;
+  let text = dict[key] ?? i18n.zh[key] ?? key;
   Object.keys(vars).forEach((k) => {
     text = text.replace(`{${k}}`, String(vars[k]));
   });
@@ -172,25 +328,49 @@ function updateThemeButton() {
 function applyI18n() {
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const k = el.dataset.i18n;
-    if (i18n[state.lang]?.[k]) el.textContent = i18n[state.lang][k];
+    el.textContent = t(k);
   });
   document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
     const k = el.dataset.i18nPlaceholder;
-    if (i18n[state.lang]?.[k]) el.placeholder = i18n[state.lang][k];
+    el.placeholder = t(k);
   });
   document.querySelectorAll("[data-i18n-html]").forEach((el) => {
     const k = el.dataset.i18nHtml;
-    if (i18n[state.lang]?.[k]) el.innerHTML = i18n[state.lang][k];
+    el.innerHTML = t(k);
+  });
+  document.querySelectorAll("[data-i18n-aria-label]").forEach((el) => {
+    const k = el.dataset.i18nAriaLabel;
+    el.setAttribute("aria-label", t(k));
   });
   langToggle.textContent = state.lang === "zh" ? "中文/EN" : "EN/中文";
+  document.documentElement.lang = state.lang === "zh" ? "zh-CN" : "en";
+  document.title = t("pageTitle");
   updateThemeButton();
+  updateModalTotalScore();
 }
 
 function getRiskText(kol) {
   const risk = Number(kol.risk_index || 0);
-  if (risk >= 3) return state.lang === "zh" ? "高风险" : "High";
-  if (risk >= 1.7) return state.lang === "zh" ? "中风险" : "Medium";
-  return state.lang === "zh" ? "安全" : "Low";
+  if (risk >= 3) return t("riskHigh");
+  if (risk >= 1.7) return t("riskMid");
+  return t("riskSafe");
+}
+
+function formatFollowers(n) {
+  const num = Number(n) || 0;
+  if (num >= 10000) {
+    const w = Math.floor(num / 1000) / 10; // 截断保留1位小数，如 299652 -> 29.9
+    const s = w % 1 === 0 ? String(Math.floor(w)) : w.toFixed(1);
+    return state.lang === "zh" ? `${s}万` : `${(num / 1000).toFixed(0)}K`;
+  }
+  return String(num);
+}
+
+function getCredibilityText(val) {
+  if (val === "完全可信") return t("credibilityTrust");
+  if (val === "存疑") return t("credibilityDoubt");
+  if (val === "不可信") return t("credibilityFalse");
+  return val || "";
 }
 
 async function loadKols() {
@@ -207,20 +387,29 @@ function renderKols() {
     kolList.innerHTML = `<p class="muted">${t("noMatch")}</p>`;
     return;
   }
+  const sep = state.lang === "zh" ? "：" : ": ";
   kolList.innerHTML = state.kols
     .map((k) => {
-      const avatar = `https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(k.handle)}`;
-      return `<article class="kol-item">
+      const isPinned = k.handle === "xlink_lab";
+      const avatarUrl = `/api/avatar/${encodeURIComponent(k.handle)}`;
+      const dicebearUrl = `https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(k.handle)}`;
+      const twitterHandle = (k.twitter_uid || k.handle || "").replace(/^@/, "");
+      const twitterLink = twitterHandle
+        ? `https://x.com/${encodeURIComponent(twitterHandle)}`
+        : "";
+      const twitterDisplay = k.twitter_uid || (twitterHandle ? `@${twitterHandle}` : "-");
+      return `<article class="kol-item ${isPinned ? "kol-item-pinned" : ""}">
+        ${isPinned ? `<span class="kol-pinned-badge">${t("pinnedBadge")}</span>` : ""}
         <div class="kol-head">
-          <img class="kol-avatar" src="${avatar}" alt="${k.handle}" />
+          <img class="kol-avatar" src="${avatarUrl}" alt="${k.handle}" data-fallback="${dicebearUrl}" onerror="this.onerror=null;this.src=this.dataset.fallback" />
           <div>
             <h3>${k.handle} <span class="badge">${k.tags || ""}</span></h3>
             <p class="kol-rating">${t("ratingLine", { score: Number(k.avg_score || 0).toFixed(1), votes: k.vote_count || 0 })}</p>
           </div>
         </div>
-        <p>${t("labelTwitterId")}：${k.twitter_uid || "-"}</p>
-        <p>${t("labelFollowers")}：${k.followers || 0}</p>
-        <p>${t("labelRiskLevel")}：${getRiskText(k)}</p>
+        <p>${t("labelTwitterId")}${sep}${twitterLink ? `<a href="${twitterLink}" target="_blank" rel="noopener" class="kol-twitter-link">${twitterDisplay}</a>` : twitterDisplay}</p>
+        <p>${t("labelFollowers")}${sep}${formatFollowers(k.followers)}</p>
+        <p>${t("labelRiskLevel")}${sep}${getRiskText(k)}</p>
         <button class="yellow-btn kol-vote-btn" type="button" data-kol-vote="${k.handle}">${t("voteBtn")}</button>
       </article>`;
     })
@@ -292,17 +481,18 @@ function closeVoteModal() {
 
 async function loadExposes() {
   const rows = await api("/exposes");
+  const sep = state.lang === "zh" ? "：" : ": ";
   reportList.innerHTML = rows
     .map((r) => {
       const evidence = (r.evidence || []).length ? r.evidence.map((x) => `<a href="${x}" target="_blank">file</a>`).join(" / ") : t("noEvidence");
-      return `<li><strong>${r.twitter_id}</strong>：${r.event_text}<span class="credibility-tag">${r.credibility}</span><br/>${t("evidence")}：${evidence}</li>`;
+      return `<li><strong>${r.twitter_id}</strong>${sep}${r.event_text}<span class="credibility-tag">${getCredibilityText(r.credibility)}</span><br/>${t("evidence")}${sep}${evidence}</li>`;
     })
     .join("");
 
   const black = rows.filter((r) => r.credibility !== "完全可信").slice(0, 8);
   const alpha = rows.filter((r) => r.credibility === "完全可信").slice(0, 8);
-  blackFeed.innerHTML = black.map((r) => `<li>${r.twitter_id}：${r.event_text}</li>`).join("") || "<li>-</li>";
-  alphaFeed.innerHTML = alpha.map((r) => `<li>${r.twitter_id}：${r.event_text}</li>`).join("") || "<li>-</li>";
+  blackFeed.innerHTML = black.map((r) => `<li>${r.twitter_id}${sep}${r.event_text}</li>`).join("") || "<li>-</li>";
+  alphaFeed.innerHTML = alpha.map((r) => `<li>${r.twitter_id}${sep}${r.event_text}</li>`).join("") || "<li>-</li>";
 }
 
 donationVerifyForm.addEventListener("submit", async (e) => {

@@ -78,6 +78,7 @@ function initDb() {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       handle TEXT UNIQUE NOT NULL,
       twitter_uid TEXT,
+      avatar_url TEXT DEFAULT '',
       followers INTEGER DEFAULT 0,
       tags TEXT DEFAULT '',
       intro TEXT DEFAULT '',
@@ -151,23 +152,28 @@ function initDb() {
       reviewed_at TEXT
     );
   `);
+  try {
+    db.exec("ALTER TABLE kols ADD COLUMN avatar_url TEXT DEFAULT ''");
+  } catch (_e) {
+    // column may already exist
+  }
 }
 
 function seedKols() {
-  const count = db.prepare("SELECT COUNT(*) AS c FROM kols").get().c;
-  if (count > 0) return;
+  const seedPath = path.join(__dirname, "kol-seed.json");
+  if (!fs.existsSync(seedPath)) return;
+  const rows = JSON.parse(fs.readFileSync(seedPath, "utf8"));
   const insert = db.prepare(
-    "INSERT INTO kols (handle, twitter_uid, followers, tags, intro, is_lead_trade) VALUES (@handle,@uid,@followers,@tags,@intro,@lead)"
+    "INSERT OR IGNORE INTO kols (handle, twitter_uid, followers, tags, intro, is_lead_trade) VALUES (@handle, @uid, @followers, @tags, @intro, 0)"
   );
-  const rows = [
-    { handle: "0xAres", uid: "@AresAlpha", followers: 182000, tags: "alpha", intro: "热点挖掘", lead: 0 },
-    { handle: "DeFiNing", uid: "@DeFiNing", followers: 94000, tags: "合约", intro: "链上策略", lead: 1 },
-    { handle: "MemeDoctor", uid: "@MemeDoctor", followers: 261000, tags: "meme", intro: "meme观察", lead: 1 },
-    { handle: "WhaleSignal", uid: "@WhaleSignal", followers: 143000, tags: "带单", intro: "鲸鱼信号", lead: 1 },
-    { handle: "ChainPanda", uid: "@ChainPanda", followers: 27000, tags: "项目方", intro: "项目分析", lead: 0 },
-    { handle: "YoloResearch", uid: "@YoloResearch", followers: 39000, tags: "alpha", intro: "投研内容", lead: 0 }
-  ];
-  const tx = db.transaction((items) => items.forEach((i) => insert.run(i)));
+  const updateFollowers = db.prepare("UPDATE kols SET followers = ? WHERE handle = ?");
+  const tx = db.transaction((items) => {
+    items.forEach((i) => {
+      const followers = Number(i.followers) || 0;
+      insert.run({ ...i, followers });
+      if (followers > 0) updateFollowers.run(followers, i.handle);
+    });
+  });
   tx(rows);
 }
 
@@ -237,11 +243,84 @@ async function verifyDonationTx({ wallet, chain, txHash }) {
   return Number(amount.toFixed(4));
 }
 
+const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY || "";
+const RAPIDAPI_TWITTER_HOST = process.env.RAPIDAPI_TWITTER_HOST || "twittr-v2-fastest-twitter-x-api-150k-requests-for-15.p.rapidapi.com";
+
+async function syncTwitterFollowers() {
+  if (!RAPIDAPI_KEY) return;
+  const kols = db.prepare("SELECT id, handle FROM kols").all();
+  const updateFollowers = db.prepare("UPDATE kols SET followers = ? WHERE id = ?");
+  const updateAvatar = db.prepare("UPDATE kols SET avatar_url = ? WHERE id = ?");
+  for (const kol of kols) {
+    try {
+      const res = await fetch(
+        `https://${RAPIDAPI_TWITTER_HOST}/user/by/username/${encodeURIComponent(kol.handle)}`,
+        {
+          headers: {
+            "x-rapidapi-key": RAPIDAPI_KEY,
+            "x-rapidapi-host": RAPIDAPI_TWITTER_HOST
+          }
+        }
+      );
+      const data = await res.json();
+      const u = data?.data?.user?.result;
+      const count =
+        u?.legacy?.followers_count ??
+        data?.data?.public_metrics?.followers_count ??
+        data?.data?.followers_count ??
+        data?.followers_count;
+      const avatar =
+        u?.avatar?.image_url ||
+        u?.legacy?.profile_image_url_https ||
+        "";
+      const avatarUrl = avatar ? String(avatar).replace("_normal", "_400x400") : "";
+      if (Number(count) > 0) updateFollowers.run(Number(count), kol.id);
+      if (avatarUrl) updateAvatar.run(avatarUrl, kol.id);
+    } catch (e) {
+      // skip on error
+    }
+    await new Promise((r) => setTimeout(r, 300));
+  }
+}
+
 initDb();
 seedKols();
+if (RAPIDAPI_KEY) setTimeout(() => syncTwitterFollowers().catch(() => {}), 3000);
 
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true, time: new Date().toISOString() });
+});
+
+app.get("/api/avatar/:handle", async (req, res) => {
+  const handle = req.params.handle;
+  const kol = db.prepare("SELECT avatar_url FROM kols WHERE handle = ?").get(handle);
+  let imageUrl = kol?.avatar_url;
+  if (!imageUrl && RAPIDAPI_KEY) {
+    try {
+      const r = await fetch(
+        `https://${RAPIDAPI_TWITTER_HOST}/user/by/username/${encodeURIComponent(handle)}`,
+        { headers: { "x-rapidapi-key": RAPIDAPI_KEY, "x-rapidapi-host": RAPIDAPI_TWITTER_HOST } }
+      );
+      const d = await r.json();
+      const av = d?.data?.user?.result?.avatar?.image_url || d?.data?.user?.result?.legacy?.profile_image_url_https;
+      imageUrl = av ? String(av).replace("_normal", "_400x400") : "";
+      if (imageUrl) {
+        db.prepare("UPDATE kols SET avatar_url = ? WHERE handle = ?").run(imageUrl, handle);
+      }
+    } catch (_e) {}
+  }
+  if (!imageUrl) {
+    return res.redirect(302, `https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(handle)}`);
+  }
+  try {
+    const imgRes = await fetch(imageUrl);
+    const buf = await imgRes.arrayBuffer();
+    res.set("Cache-Control", "public, max-age=86400");
+    res.set("Content-Type", imgRes.headers.get("content-type") || "image/jpeg");
+    res.send(Buffer.from(buf));
+  } catch (e) {
+    res.redirect(302, `https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(handle)}`);
+  }
 });
 
 app.get("/api/kols", (req, res) => {
@@ -249,7 +328,7 @@ app.get("/api/kols", (req, res) => {
   const q = (req.query.q || "").toString().trim().toLowerCase();
   const qLike = `%${q}%`;
   const base = `
-    SELECT id, handle, twitter_uid, followers, tags, intro, is_lead_trade, avg_score, vote_count, risk_index, created_at
+    SELECT id, handle, twitter_uid, avatar_url, followers, tags, intro, is_lead_trade, avg_score, vote_count, risk_index, created_at
     FROM kols
     WHERE (lower(handle) LIKE ? OR lower(twitter_uid) LIKE ?)
   `;
@@ -257,7 +336,11 @@ app.get("/api/kols", (req, res) => {
   if (rank === "black") orderBy = "ORDER BY risk_index DESC, avg_score ASC";
   if (rank === "new") orderBy = "ORDER BY datetime(created_at) DESC";
   if (rank === "all") orderBy = "ORDER BY datetime(created_at) DESC";
-  const rows = db.prepare(`${base} ${orderBy}`).all(qLike, qLike);
+  let rows = db.prepare(`${base} ${orderBy}`).all(qLike, qLike);
+  const pinned = rows.find((r) => r.handle === "xlink_lab");
+  if (pinned) {
+    rows = [pinned, ...rows.filter((r) => r.handle !== "xlink_lab")];
+  }
   res.json(rows);
 });
 
@@ -421,6 +504,16 @@ app.post("/api/admin/submissions/:id/review", authAdmin, (req, res) => {
     id
   );
   res.json({ ok: true });
+});
+
+app.post("/api/admin/sync-followers", authAdmin, async (_req, res) => {
+  if (!RAPIDAPI_KEY) return res.status(400).json({ error: "RAPIDAPI_KEY not configured" });
+  try {
+    await syncTwitterFollowers();
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 app.post("/api/admin/blacklist", authAdmin, (req, res) => {
