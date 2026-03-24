@@ -1,12 +1,8 @@
 {
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/api"
-    }
-  ],
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
   "functions": {
-    "api/index.js": {
+    "index.js": {
       "maxDuration": 60,
       "memory": 1024
     }

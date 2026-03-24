@@ -1,6 +1,7 @@
 node_modules/
 data/
 uploads/
+public/
 .DS_Store
 Thumbs.db
 data.db

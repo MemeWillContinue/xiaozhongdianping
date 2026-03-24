@@ -148,7 +148,14 @@ app.use(
     secret: process.env.SESSION_SECRET || JWT_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: { httpOnly: true, sameSite: "lax", maxAge: 7 * 24 * 60 * 60 * 1000 }
+    proxy: true,
+    cookie: {
+      httpOnly: true,
+      sameSite: "lax",
+      // HTTPS 生产环境必须 secure，否则浏览器不落登录 Cookie（X 登录后仍显示未登录）
+      secure: Boolean(process.env.VERCEL) || process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    }
   })
 );
 app.use("/uploads", express.static(UPLOAD_DIR));
@@ -1699,14 +1706,14 @@ app.post("/api/admin/blacklist", authAdmin, (req, res) => {
   res.json({ ok: true });
 });
 
-// In production we only expose the obfuscated/minified frontend artifacts under /dist,
-// so raw source files (e.g. frontend.js) are not directly reachable from the web.
+// 本地：从 dist/ 提供前端。Vercel：静态由仓库根目录 public/ 经 CDN 提供（express.static 在 Vercel 上对 Express 不生效，见官方文档）。
 const distDir = path.join(__dirname, "dist");
-if (fs.existsSync(distDir)) {
-  app.use(express.static(distDir));
-} else {
-  // Local/dev fallback: serve everything from project root.
-  app.use(express.static(__dirname));
+if (!process.env.VERCEL) {
+  if (fs.existsSync(distDir)) {
+    app.use(express.static(distDir));
+  } else {
+    app.use(express.static(__dirname));
+  }
 }
 
 if (require.main === module) {

@@ -44,6 +44,12 @@ function build() {
   });
 
   fs.writeFileSync(path.join(distDir, "frontend.obf.js"), result.getObfuscatedCode(), "utf8");
+
+  // Vercel：静态资源必须放在 public/，由 CDN 提供（与 dist 内容一致）
+  const publicDir = path.join(rootDir, "public");
+  fs.rmSync(publicDir, { recursive: true, force: true });
+  fs.mkdirSync(publicDir, { recursive: true });
+  fs.cpSync(distDir, publicDir, { recursive: true });
 }
 
 build();
